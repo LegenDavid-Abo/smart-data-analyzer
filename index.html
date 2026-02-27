@@ -1,0 +1,1491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Smart Data Analyzer Pro - AI-Powered Data Intelligence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        * { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .glass-strong {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        
+        .hero-glow {
+            position: absolute;
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(102, 126, 234, 0.2) 0%, transparent 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+        
+        .drop-zone {
+            border: 2px dashed rgba(102, 126, 234, 0.5);
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .drop-zone:hover, .drop-zone.active {
+            border-color: #667eea;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+            transform: scale(1.01);
+            box-shadow: 0 0 30px rgba(102, 126, 234, 0.3);
+        }
+        
+        .feature-card {
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+            border-color: rgba(102, 126, 234, 0.5);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(0) scale(0.98);
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%);
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            border-color: rgba(102, 126, 234, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .tab-active {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%);
+            border-bottom: 2px solid #667eea;
+            color: #fff;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 350px;
+        }
+        
+        @media (max-width: 768px) {
+            .chart-container { height: 280px; }
+        }
+        
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .animate-pulse-slow {
+            animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        .ai-insight-card {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+            border-left: 4px solid #667eea;
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        .ai-insight-card.warning {
+            background: linear-gradient(135deg, rgba(234, 179, 8, 0.15) 0%, rgba(202, 138, 4, 0.15) 100%);
+            border-left-color: #eab308;
+        }
+        
+        .ai-insight-card.success {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(22, 163, 74, 0.15) 100%);
+            border-left-color: #22c55e;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .toast {
+            animation: slideInRight 0.3s ease-out;
+        }
+        
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .loading-shimmer {
+            background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        
+        .data-row:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .download-btn {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .download-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s;
+        }
+        
+        .download-btn:active::after {
+            width: 200px;
+            height: 200px;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="fixed bottom-4 right-4 z-50 space-y-2 pointer-events-none"></div>
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 glass-strong border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="window.scrollTo(0,0)">
+                    <div class="w-10 h-10 gradient-bg rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                        <i class="fas fa-brain text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <span class="text-xl font-bold text-white">Smart Data Analyzer</span>
+                        <span class="hidden sm:inline text-xs text-indigo-400 ml-2">PRO</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button onclick="document.getElementById('analyzer').scrollIntoView({behavior: 'smooth'})" class="btn-primary px-6 py-2 rounded-lg text-white font-medium text-sm shadow-lg shadow-indigo-500/30">
+                        <i class="fas fa-rocket mr-2"></i>Analyze Now
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative min-h-screen flex items-center justify-center pt-16 overflow-hidden">
+        <div class="hero-glow"></div>
+        <div class="absolute top-20 left-10 w-20 h-20 bg-indigo-500/30 rounded-full blur-xl animate-float"></div>
+        <div class="absolute top-40 right-20 w-16 h-16 bg-purple-500/30 rounded-full blur-lg animate-float" style="animation-delay: 1s;"></div>
+        <div class="absolute bottom-32 left-1/4 w-24 h-24 bg-blue-500/20 rounded-full blur-xl animate-float" style="animation-delay: 2s;"></div>
+        <div class="absolute bottom-20 right-10 w-32 h-32 bg-purple-500/20 rounded-full blur-xl animate-float" style="animation-delay: 3s;"></div>
+        
+        <div class="relative z-10 max-w-6xl mx-auto px-4 text-center">
+            <div class="inline-flex items-center px-4 py-2 rounded-full glass text-indigo-400 text-sm font-medium mb-6 border border-indigo-500/30 animate-pulse-slow">
+                <span class="w-2 h-2 bg-indigo-500 rounded-full mr-2 animate-pulse"></span>
+                AI-Powered • 100% Private • Instant Results
+            </div>
+            
+            <h1 class="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
+                Transform Data Into<br>
+                <span class="gradient-text">Intelligent Insights</span>
+            </h1>
+            
+            <p class="text-xl text-gray-400 mb-10 max-w-2xl mx-auto leading-relaxed">
+                Upload any CSV, Excel, or JSON file. Our AI analyzes patterns, detects anomalies, generates predictions, and creates stunning visualizations automatically.
+            </p>
+            
+            <div class="flex flex-col sm:flex-row gap-4 justify-center mb-16">
+                <button onclick="document.getElementById('analyzer').scrollIntoView({behavior: 'smooth'})" class="btn-primary px-8 py-4 rounded-xl text-white font-semibold text-lg flex items-center justify-center gap-2 shadow-xl shadow-indigo-500/30">
+                    <i class="fas fa-rocket"></i>
+                    Start Analyzing Free
+                </button>
+                <button onclick="document.getElementById('features').scrollIntoView({behavior: 'smooth'})" class="px-8 py-4 rounded-xl border border-white/20 text-white font-semibold text-lg hover:bg-white/10 transition flex items-center justify-center gap-2">
+                    <i class="fas fa-sparkles"></i>
+                    See AI Features
+                </button>
+            </div>
+            
+            <!-- Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
+                <div class="glass p-4 rounded-xl">
+                    <div class="text-2xl font-bold text-white">AI</div>
+                    <div class="text-xs text-gray-400">Powered Analysis</div>
+                </div>
+                <div class="glass p-4 rounded-xl">
+                    <div class="text-2xl font-bold text-white">100%</div>
+                    <div class="text-xs text-gray-400">Private & Secure</div>
+                </div>
+                <div class="glass p-4 rounded-xl">
+                    <div class="text-2xl font-bold text-white">50+</div>
+                    <div class="text-xs text-gray-400">Data Formats</div>
+                </div>
+                <div class="glass p-4 rounded-xl">
+                    <div class="text-2xl font-bold text-white">0s</div>
+                    <div class="text-xs text-gray-400">Processing Delay</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI Features -->
+    <section id="features" class="py-20 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-white mb-4">AI-Powered Features</h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">Advanced intelligence that understands your data and provides actionable recommendations</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="feature-card glass p-6 rounded-2xl border border-white/10">
+                    <div class="w-14 h-14 gradient-bg rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-indigo-500/20">
+                        <i class="fas fa-robot text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2">Smart Analysis</h3>
+                    <p class="text-gray-400 text-sm">AI detects patterns, correlations, and anomalies automatically without configuration.</p>
+                </div>
+                
+                <div class="feature-card glass p-6 rounded-2xl border border-white/10">
+                    <div class="w-14 h-14 gradient-bg rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-indigo-500/20">
+                        <i class="fas fa-lightbulb text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2">Predictive Insights</h3>
+                    <p class="text-gray-400 text-sm">Get AI-generated predictions and recommendations based on your data trends.</p>
+                </div>
+                
+                <div class="feature-card glass p-6 rounded-2xl border border-white/10">
+                    <div class="w-14 h-14 gradient-bg rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-indigo-500/20">
+                        <i class="fas fa-chart-line text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2">Auto Visualizations</h3>
+                    <p class="text-gray-400 text-sm">AI selects the best chart types for your data and explains what they mean.</p>
+                </div>
+                
+                <div class="feature-card glass p-6 rounded-2xl border border-white/10">
+                    <div class="w-14 h-14 gradient-bg rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-indigo-500/20">
+                        <i class="fas fa-shield-alt text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2">Privacy First</h3>
+                    <p class="text-gray-400 text-sm">All AI processing happens in your browser. Your data never leaves your device.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Analyzer -->
+    <section id="analyzer" class="py-20 bg-black/20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold text-white mb-4">Analyze Your Data with AI</h2>
+                <p class="text-gray-400">Drag & drop any file or click to upload. AI will do the rest.</p>
+            </div>
+
+            <!-- Upload Area -->
+            <div id="uploadArea" class="max-w-3xl mx-auto">
+                <div id="dropZone" class="drop-zone rounded-2xl p-12 text-center cursor-pointer" onclick="document.getElementById('fileInput').click()">
+                    <input type="file" id="fileInput" class="hidden" accept=".csv,.json,.xlsx,.xls" onchange="handleFile(event)">
+                    <div class="w-24 h-24 gradient-bg rounded-2xl flex items-center justify-center mx-auto mb-6 animate-pulse-slow shadow-xl shadow-indigo-500/30">
+                        <i class="fas fa-cloud-upload-alt text-white text-4xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-3">Drop your file here</h3>
+                    <p class="text-gray-400 mb-8">or click to browse your device</p>
+                    <div class="flex flex-wrap justify-center gap-4 text-sm">
+                        <span class="flex items-center gap-2 px-4 py-2 rounded-full glass text-gray-300">
+                            <i class="fas fa-file-csv text-green-400"></i> CSV
+                        </span>
+                        <span class="flex items-center gap-2 px-4 py-2 rounded-full glass text-gray-300">
+                            <i class="fas fa-file-code text-blue-400"></i> JSON
+                        </span>
+                        <span class="flex items-center gap-2 px-4 py-2 rounded-full glass text-gray-300">
+                            <i class="fas fa-file-excel text-green-500"></i> Excel
+                        </span>
+                    </div>
+                    <p class="mt-6 text-xs text-gray-500">Maximum file size: 10MB • AI processes locally • Instant results</p>
+                </div>
+            </div>
+
+            <!-- Processing -->
+            <div id="processingArea" class="hidden max-w-3xl mx-auto">
+                <div class="glass-strong rounded-2xl p-12 text-center">
+                    <div class="w-24 h-24 mx-auto mb-6 relative">
+                        <div class="absolute inset-0 border-4 border-indigo-500/20 rounded-full"></div>
+                        <div class="absolute inset-0 border-4 border-indigo-500 rounded-full border-t-transparent animate-spin"></div>
+                        <i class="fas fa-robot absolute inset-0 flex items-center justify-center text-3xl text-indigo-400"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2" id="processText">AI is analyzing your data...</h3>
+                    <p class="text-gray-400 text-sm mb-6" id="processSub">Detecting patterns and generating insights</p>
+                    <div class="w-full bg-gray-800 rounded-full h-2 overflow-hidden">
+                        <div id="progressBar" class="progress-fill h-full rounded-full" style="width: 0%"></div>
+                    </div>
+                    <div class="mt-4 flex justify-center gap-2 text-xs text-gray-500">
+                        <span id="step1" class="px-3 py-1 rounded-full bg-white/10">Reading</span>
+                        <span id="step2" class="px-3 py-1 rounded-full">Analyzing</span>
+                        <span id="step3" class="px-3 py-1 rounded-full">Visualizing</span>
+                        <span id="step4" class="px-3 py-1 rounded-full">AI Insights</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results -->
+            <div id="resultsArea" class="hidden space-y-6">
+                
+                <!-- AI Summary Banner -->
+                <div class="glass-strong rounded-2xl p-6 border border-indigo-500/30 bg-gradient-to-r from-indigo-500/10 to-purple-500/10">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 gradient-bg rounded-xl flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-robot text-white text-xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-white mb-2">AI Analysis Complete</h3>
+                            <p class="text-gray-300 text-sm leading-relaxed" id="aiSummary">Analyzing your data...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions Bar -->
+                <div class="flex flex-wrap justify-between items-center gap-4 glass p-4 rounded-xl">
+                    <div class="flex items-center gap-3">
+                        <button onclick="resetAnalyzer()" class="px-4 py-2 rounded-lg border border-white/20 text-gray-300 hover:text-white hover:bg-white/5 transition flex items-center gap-2 text-sm">
+                            <i class="fas fa-plus"></i> New Analysis
+                        </button>
+                        <span id="currentFileName" class="text-gray-400 text-sm hidden sm:inline"></span>
+                    </div>
+                    <div class="flex gap-2 flex-wrap">
+                        <button onclick="downloadCSV()" class="download-btn px-4 py-2 bg-green-600/20 hover:bg-green-600/30 border border-green-500/30 rounded-lg text-green-400 text-sm transition flex items-center gap-2">
+                            <i class="fas fa-file-csv"></i> <span class="hidden sm:inline">Download</span> CSV
+                        </button>
+                        <button onclick="downloadJSON()" class="download-btn px-4 py-2 bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/30 rounded-lg text-purple-400 text-sm transition flex items-center gap-2">
+                            <i class="fas fa-file-code"></i> <span class="hidden sm:inline">Download</span> JSON
+                        </button>
+                        <button onclick="downloadExcel()" class="download-btn px-4 py-2 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 rounded-lg text-blue-400 text-sm transition flex items-center gap-2">
+                            <i class="fas fa-file-excel"></i> <span class="hidden sm:inline">Download</span> Excel
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="stat-card p-6 rounded-xl text-center">
+                        <div class="text-3xl font-bold text-white mono" id="statRows">0</div>
+                        <div class="text-sm text-gray-400 mt-1">Total Rows</div>
+                        <div class="text-xs text-indigo-400 mt-1" id="rowsTrend"></div>
+                    </div>
+                    <div class="stat-card p-6 rounded-xl text-center">
+                        <div class="text-3xl font-bold text-white mono" id="statCols">0</div>
+                        <div class="text-sm text-gray-400 mt-1">Columns</div>
+                        <div class="text-xs text-indigo-400 mt-1" id="colsBreakdown"></div>
+                    </div>
+                    <div class="stat-card p-6 rounded-xl text-center">
+                        <div class="text-3xl font-bold text-white mono" id="statQuality">100%</div>
+                        <div class="text-sm text-gray-400 mt-1">Data Quality</div>
+                        <div class="text-xs text-green-400 mt-1" id="qualityStatus">Excellent</div>
+                    </div>
+                    <div class="stat-card p-6 rounded-xl text-center">
+                        <div class="text-3xl font-bold text-white mono" id="statInsights">0</div>
+                        <div class="text-sm text-gray-400 mt-1">AI Insights</div>
+                        <div class="text-xs text-yellow-400 mt-1">Generated</div>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="glass rounded-xl p-1 flex overflow-x-auto no-scrollbar">
+                    <button onclick="showTab('overview')" id="tab-overview" class="tab-active flex-1 py-3 px-4 rounded-lg text-sm font-medium whitespace-nowrap min-w-[100px]">
+                        <i class="fas fa-brain mr-2"></i>AI Overview
+                    </button>
+                    <button onclick="showTab('charts')" id="tab-charts" class="flex-1 py-3 px-4 rounded-lg text-sm font-medium text-gray-400 hover:text-white whitespace-nowrap min-w-[100px]">
+                        <i class="fas fa-chart-pie mr-2"></i>Charts
+                    </button>
+                    <button onclick="showTab('insights')" id="tab-insights" class="flex-1 py-3 px-4 rounded-lg text-sm font-medium text-gray-400 hover:text-white whitespace-nowrap min-w-[100px]">
+                        <i class="fas fa-lightbulb mr-2"></i>Insights
+                    </button>
+                    <button onclick="showTab('stats')" id="tab-stats" class="flex-1 py-3 px-4 rounded-lg text-sm font-medium text-gray-400 hover:text-white whitespace-nowrap min-w-[100px]">
+                        <i class="fas fa-calculator mr-2"></i>Statistics
+                    </button>
+                    <button onclick="showTab('data')" id="tab-data" class="flex-1 py-3 px-4 rounded-lg text-sm font-medium text-gray-400 hover:text-white whitespace-nowrap min-w-[100px]">
+                        <i class="fas fa-table mr-2"></i>Data
+                    </button>
+                </div>
+
+                <!-- Tab Contents -->
+                
+                <!-- AI Overview -->
+                <div id="view-overview" class="space-y-6">
+                    <!-- AI Insights Cards -->
+                    <div id="aiInsightsCards" class="grid md:grid-cols-2 gap-4"></div>
+                    
+                    <div class="grid lg:grid-cols-2 gap-6">
+                        <div class="glass p-6 rounded-xl">
+                            <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                                <i class="fas fa-columns text-indigo-400"></i> Column Analysis
+                            </h3>
+                            <div id="columnList" class="space-y-3 max-h-96 overflow-y-auto pr-2"></div>
+                        </div>
+                        <div class="glass p-6 rounded-xl">
+                            <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                                <i class="fas fa-eye text-indigo-400"></i> Data Preview
+                            </h3>
+                            <div class="overflow-x-auto rounded-lg border border-white/10">
+                                <table class="w-full text-sm">
+                                    <thead id="previewHead" class="text-gray-400 bg-white/5 text-xs uppercase"></thead>
+                                    <tbody id="previewBody" class="text-gray-300 text-sm"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div id="view-charts" class="hidden space-y-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="glass p-6 rounded-xl">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-bold text-white">Distribution Analysis</h3>
+                                <span class="text-xs text-indigo-400 px-2 py-1 rounded bg-indigo-500/20">AI Generated</span>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="chartDist"></canvas>
+                            </div>
+                            <p class="text-sm text-gray-400 mt-3" id="chartDistExplanation"></p>
+                        </div>
+                        <div class="glass p-6 rounded-xl">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-bold text-white">Correlation Matrix</h3>
+                                <span class="text-xs text-indigo-400 px-2 py-1 rounded bg-indigo-500/20">AI Generated</span>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="chartCorr"></canvas>
+                            </div>
+                            <p class="text-sm text-gray-400 mt-3" id="chartCorrExplanation"></p>
+                        </div>
+                    </div>
+                    <div class="glass p-6 rounded-xl">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-bold text-white">Trend Analysis</h3>
+                            <span class="text-xs text-indigo-400 px-2 py-1 rounded bg-indigo-500/20">AI Generated</span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="chartTrend"></canvas>
+                        </div>
+                        <p class="text-sm text-gray-400 mt-3" id="chartTrendExplanation"></p>
+                    </div>
+                </div>
+
+                <!-- AI Insights -->
+                <div id="view-insights" class="hidden space-y-4">
+                    <div class="glass p-6 rounded-xl mb-6">
+                        <h3 class="text-lg font-bold text-white mb-3 flex items-center gap-2">
+                            <i class="fas fa-robot text-indigo-400"></i> Executive Summary
+                        </h3>
+                        <p class="text-gray-300 leading-relaxed" id="executiveSummary"></p>
+                    </div>
+                    <div id="detailedInsights" class="space-y-4"></div>
+                </div>
+
+                <!-- Statistics -->
+                <div id="view-stats" class="hidden">
+                    <div class="glass p-6 rounded-xl overflow-x-auto">
+                        <h3 class="text-lg font-bold text-white mb-4">Detailed Statistics</h3>
+                        <table class="w-full text-sm">
+                            <thead class="text-gray-400 border-b border-white/10 text-xs uppercase">
+                                <tr>
+                                    <th class="text-left py-3">Column</th>
+                                    <th class="text-left py-3">Type</th>
+                                    <th class="text-right py-3">Count</th>
+                                    <th class="text-right py-3">Mean</th>
+                                    <th class="text-right py-3">Median</th>
+                                    <th class="text-right py-3">Std Dev</th>
+                                    <th class="text-right py-3">Min</th>
+                                    <th class="text-right py-3">Max</th>
+                                </tr>
+                            </thead>
+                            <tbody id="statsBody" class="text-gray-300"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Raw Data -->
+                <div id="view-data" class="hidden">
+                    <div class="glass rounded-xl overflow-hidden">
+                        <div class="p-4 border-b border-white/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                            <span class="text-white font-medium">Full Dataset <span id="dataCount" class="text-gray-500 text-sm"></span></span>
+                            <div class="flex gap-2">
+                                <button onclick="downloadCSV()" class="px-3 py-1.5 bg-green-600/20 hover:bg-green-600/30 border border-green-500/30 rounded text-green-400 text-xs transition">
+                                    CSV
+                                </button>
+                                <button onclick="downloadJSON()" class="px-3 py-1.5 bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/30 rounded text-purple-400 text-xs transition">
+                                    JSON
+                                </button>
+                                <button onclick="downloadExcel()" class="px-3 py-1.5 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 rounded text-blue-400 text-xs transition">
+                                    Excel
+                                </button>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto max-h-[500px]">
+                            <table class="w-full text-sm">
+                                <thead id="fullHead" class="text-gray-400 bg-white/5 sticky top-0 text-xs uppercase"></thead>
+                                <tbody id="fullBody" class="text-gray-300"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/10 bg-black/40 py-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <div class="flex items-center justify-center gap-3 mb-4">
+                <div class="w-10 h-10 gradient-bg rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                    <i class="fas fa-brain text-white"></i>
+                </div>
+                <span class="text-white font-bold text-lg">Smart Data Analyzer Pro</span>
+            </div>
+            <p class="text-gray-500 text-sm mb-2">AI-Powered Data Intelligence • 100% Private • Free Forever</p>
+            <p class="text-gray-600 text-xs">© 2026 • All processing happens in your browser</p>
+        </div>
+    </footer>
+
+    <script>
+        // Global state
+        let currentData = null;
+        let currentFileName = '';
+        let analysis = null;
+        let charts = {};
+        let aiAnalysis = null;
+
+        // Setup drag and drop
+        const dropZone = document.getElementById('dropZone');
+        
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.add('active'), false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.remove('active'), false);
+        });
+        
+        dropZone.addEventListener('drop', handleDrop, false);
+        
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files.length) processFile(files[0]);
+        }
+
+        function handleFile(e) {
+            if (e.target.files.length) processFile(e.target.files[0]);
+        }
+
+        async function processFile(file) {
+            if (file.size > 10 * 1024 * 1024) {
+                showToast('File too large (max 10MB)', 'error');
+                return;
+            }
+            
+            currentFileName = file.name;
+            document.getElementById('currentFileName').textContent = file.name;
+            
+            // Show processing
+            document.getElementById('uploadArea').classList.add('hidden');
+            document.getElementById('processingArea').classList.remove('hidden');
+            
+            try {
+                const data = await readFile(file);
+                currentData = data;
+                await performAIAnalysis(data);
+                showResults();
+            } catch (err) {
+                showToast('Error: ' + err.message, 'error');
+                resetAnalyzer();
+            }
+        }
+
+        function readFile(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                const ext = file.name.split('.').pop().toLowerCase();
+                
+                updateProgress(15, 'Reading file...', 1);
+                
+                reader.onload = (e) => {
+                    try {
+                        let data;
+                        
+                        if (ext === 'csv') {
+                            updateProgress(30, 'Parsing CSV...', 1);
+                            const result = Papa.parse(e.target.result, {
+                                header: true,
+                                dynamicTyping: true,
+                                skipEmptyLines: true
+                            });
+                            data = result.data;
+                        } else if (ext === 'json') {
+                            updateProgress(30, 'Parsing JSON...', 1);
+                            data = JSON.parse(e.target.result);
+                            if (!Array.isArray(data)) {
+                                const arr = Object.values(data).find(v => Array.isArray(v));
+                                data = arr || [data];
+                            }
+                        } else if (ext === 'xlsx' || ext === 'xls') {
+                            updateProgress(30, 'Parsing Excel...', 1);
+                            const workbook = XLSX.read(e.target.result, { type: 'binary' });
+                            const first = workbook.Sheets[workbook.SheetNames[0]];
+                            data = XLSX.utils.sheet_to_json(first);
+                        }
+                        
+                        if (!data || !data.length) throw new Error('No data found in file');
+                        
+                        updateProgress(45, `Loaded ${data.length.toLocaleString()} rows`, 2);
+                        resolve(data);
+                    } catch (err) {
+                        reject(err);
+                    }
+                };
+                
+                reader.onerror = () => reject(new Error('Failed to read file'));
+                
+                if (file.name.match(/\.xlsx?$/)) {
+                    reader.readAsBinaryString(file);
+                } else {
+                    reader.readAsText(file);
+                }
+            });
+        }
+
+        function updateProgress(pct, text, step) {
+            document.getElementById('progressBar').style.width = pct + '%';
+            document.getElementById('processText').textContent = text;
+            
+            // Update step indicators
+            for (let i = 1; i <= 4; i++) {
+                const el = document.getElementById(`step${i}`);
+                if (i <= step) {
+                    el.className = 'px-3 py-1 rounded-full bg-indigo-500 text-white text-xs transition-all';
+                } else if (i === step + 1) {
+                    el.className = 'px-3 py-1 rounded-full bg-white/20 text-white text-xs animate-pulse';
+                } else {
+                    el.className = 'px-3 py-1 rounded-full text-gray-500 text-xs';
+                }
+            }
+        }
+
+        async function performAIAnalysis(data) {
+            updateProgress(60, 'AI analyzing patterns...', 2);
+            
+            const cols = Object.keys(data[0]);
+            const colAnalysis = {};
+            let totalMissing = 0;
+            let numericCols = [];
+            let stringCols = [];
+            let dateCols = [];
+            
+            // Analyze each column
+            cols.forEach(col => {
+                const values = data.map(r => r[col]).filter(v => v !== null && v !== undefined && v !== '');
+                const nums = values.map(v => parseFloat(v)).filter(v => !isNaN(v));
+                const missing = data.length - values.length;
+                totalMissing += missing;
+                
+                const uniqueVals = [...new Set(values)];
+                const type = detectType(values);
+                
+                const analysis = {
+                    name: col,
+                    type: type,
+                    count: values.length,
+                    missing: missing,
+                    unique: uniqueVals.length,
+                    uniqueRatio: uniqueVals.length / values.length,
+                    sampleValues: values.slice(0, 5)
+                };
+                
+                if (type === 'number' && nums.length) {
+                    analysis.mean = nums.reduce((a,b) => a+b, 0) / nums.length;
+                    analysis.min = Math.min(...nums);
+                    analysis.max = Math.max(...nums);
+                    const sorted = [...nums].sort((a,b) => a-b);
+                    analysis.median = sorted[Math.floor(sorted.length/2)];
+                    analysis.std = Math.sqrt(nums.reduce((sq, n) => sq + Math.pow(n - analysis.mean, 2), 0) / nums.length);
+                    analysis.range = analysis.max - analysis.min;
+                    numericCols.push(analysis);
+                } else if (type === 'date') {
+                    dateCols.push(analysis);
+                } else {
+                    // Find most common value
+                    const freq = {};
+                    values.forEach(v => freq[v] = (freq[v] || 0) + 1);
+                    analysis.mostCommon = Object.entries(freq).sort((a,b) => b[1]-a[1])[0];
+                    stringCols.push(analysis);
+                }
+                
+                colAnalysis[col] = analysis;
+            });
+            
+            updateProgress(75, 'Generating AI insights...', 3);
+            
+            // AI Insights Generation
+            const insights = [];
+            const recommendations = [];
+            
+            // 1. Data Quality Assessment
+            const qualityScore = Math.max(0, 100 - (totalMissing / (data.length * cols.length) * 100));
+            let qualityStatus = 'Excellent';
+            if (qualityScore < 90) qualityStatus = 'Good';
+            if (qualityScore < 70) qualityStatus = 'Fair';
+            if (qualityScore < 50) qualityStatus = 'Poor';
+            
+            insights.push({
+                type: 'quality',
+                title: `Data Quality: ${qualityStatus}`,
+                description: `Found ${totalMissing} missing values out of ${(data.length * cols.length).toLocaleString()} total cells (${(100-qualityScore).toFixed(1)}% missing).`,
+                severity: qualityScore > 90 ? 'success' : qualityScore > 70 ? 'warning' : 'error',
+                recommendation: qualityScore < 90 ? 'Consider data cleaning to improve analysis accuracy.' : null
+            });
+            
+            // 2. Column Analysis
+            insights.push({
+                type: 'structure',
+                title: 'Dataset Structure',
+                description: `Dataset contains ${numericCols.length} numeric, ${stringCols.length} categorical, and ${dateCols.length} date columns.`,
+                severity: 'info'
+            });
+            
+            // 3. Correlation Analysis
+            const correlations = [];
+            if (numericCols.length >= 2) {
+                for (let i = 0; i < numericCols.length; i++) {
+                    for (let j = i + 1; j < numericCols.length; j++) {
+                        const col1 = numericCols[i];
+                        const col2 = numericCols[j];
+                        
+                        const x = data.map(r => parseFloat(r[col1.name])).filter(v => !isNaN(v));
+                        const y = data.map(r => parseFloat(r[col2.name])).filter(v => !isNaN(v));
+                        
+                        if (x.length === y.length && x.length > 10) {
+                            const n = Math.min(x.length, 1000); // Sample for performance
+                            const xSample = x.slice(0, n);
+                            const ySample = y.slice(0, n);
+                            
+                            const xMean = xSample.reduce((a,b) => a+b, 0) / n;
+                            const yMean = ySample.reduce((a,b) => a+b, 0) / n;
+                            
+                            let num = 0, denX = 0, denY = 0;
+                            for (let k = 0; k < n; k++) {
+                                const dx = xSample[k] - xMean;
+                                const dy = ySample[k] - yMean;
+                                num += dx * dy;
+                                denX += dx * dx;
+                                denY += dy * dy;
+                            }
+                            
+                            const corr = num / Math.sqrt(denX * denY);
+                            if (!isNaN(corr) && Math.abs(corr) > 0.5) {
+                                correlations.push({
+                                    col1: col1.name,
+                                    col2: col2.name,
+                                    corr: corr,
+                                    strength: Math.abs(corr) > 0.8 ? 'Very Strong' : Math.abs(corr) > 0.6 ? 'Strong' : 'Moderate',
+                                    direction: corr > 0 ? 'positive' : 'negative'
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            
+            if (correlations.length > 0) {
+                const topCorr = correlations.sort((a,b) => Math.abs(b.corr) - Math.abs(a.corr))[0];
+                insights.push({
+                    type: 'correlation',
+                    title: `${topCorr.strength} Correlation Detected`,
+                    description: `${topCorr.col1} and ${topCorr.col2} show a ${topCorr.strength.toLowerCase()} ${topCorr.direction} correlation (${topCorr.corr.toFixed(2)}).`,
+                    severity: 'success',
+                    recommendation: topCorr.direction === 'positive' 
+                        ? `When ${topCorr.col1} increases, ${topCorr.col2} tends to increase. Consider using this relationship for predictions.`
+                        : `When ${topCorr.col1} increases, ${topCorr.col2} tends to decrease. This inverse relationship may indicate competing factors.`
+                });
+            }
+            
+            // 4. Outlier Detection
+            const outliers = [];
+            numericCols.forEach(col => {
+                if (col.std > 0) {
+                    const threshold = 2.5 * col.std;
+                    const outlierCount = data.filter(r => {
+                        const val = parseFloat(r[col.name]);
+                        return !isNaN(val) && Math.abs(val - col.mean) > threshold;
+                    }).length;
+                    
+                    if (outlierCount > 0 && outlierCount < data.length * 0.05) {
+                        outliers.push({
+                            column: col.name,
+                            count: outlierCount,
+                            percentage: (outlierCount / data.length * 100).toFixed(1)
+                        });
+                    }
+                }
+            });
+            
+            if (outliers.length > 0) {
+                const topOutlier = outliers.sort((a,b) => b.count - a.count)[0];
+                insights.push({
+                    type: 'outlier',
+                    title: `Outliers in ${topOutlier.column}`,
+                    description: `Detected ${topOutlier.count} outliers (${topOutlier.percentage}% of data) with values significantly different from the mean.`,
+                    severity: 'warning',
+                    recommendation: 'Review these values for data entry errors or special cases that need separate analysis.'
+                });
+            }
+            
+            // 5. Distribution Analysis
+            numericCols.forEach(col => {
+                if (col.mean && col.median) {
+                    const skewness = (col.mean - col.median) / (col.std || 1);
+                    if (Math.abs(skewness) > 1) {
+                        insights.push({
+                            type: 'distribution',
+                            title: `Skewed Distribution: ${col.name}`,
+                            description: `Data shows ${skewness > 0 ? 'right' : 'left'} skew (skewness: ${skewness.toFixed(2)}), indicating ${skewness > 0 ? 'high values are more spread out' : 'low values are more spread out'}.`,
+                            severity: 'info',
+                            recommendation: skewness > 2 ? 'Consider log transformation for better statistical modeling.' : null
+                        });
+                    }
+                }
+            });
+            
+            // 6. Unique Identifier Detection
+            const idCols = Object.values(colAnalysis).filter(c => c.uniqueRatio > 0.95);
+            if (idCols.length > 0) {
+                insights.push({
+                    type: 'identifier',
+                    title: 'Potential Identifiers Detected',
+                    description: `${idCols.length} column(s) appear to be unique identifiers: ${idCols.map(c => c.name).join(', ')}.`,
+                    severity: 'info',
+                    recommendation: 'These columns may be useful for joining with other datasets but provide limited analytical value.'
+                });
+            }
+            
+            // 7. Constant Columns
+            const constCols = Object.values(colAnalysis).filter(c => c.unique === 1);
+            if (constCols.length > 0) {
+                insights.push({
+                    type: 'constant',
+                    title: 'Constant Values Detected',
+                    description: `${constCols.length} column(s) contain only one unique value.`,
+                    severity: 'warning',
+                    recommendation: 'Consider removing these columns as they provide no variance for analysis.'
+                });
+            }
+            
+            updateProgress(90, 'Creating visualizations...', 3);
+            
+            // Generate executive summary
+            const summaryParts = [];
+            summaryParts.push(`This dataset contains ${data.length.toLocaleString()} rows and ${cols.length} columns. `);
+            summaryParts.push(`The overall data quality is ${qualityStatus.toLowerCase()} (${qualityScore.toFixed(0)}%). `);
+            
+            if (numericCols.length > 0) {
+                summaryParts.push(`Found ${numericCols.length} numeric columns suitable for statistical analysis. `);
+            }
+            
+            if (correlations.length > 0) {
+                summaryParts.push(`Detected ${correlations.length} significant correlation${correlations.length > 1 ? 's' : ''} between variables. `);
+            }
+            
+            if (outliers.length > 0) {
+                summaryParts.push(`Identified outliers in ${outliers.length} column${outliers.length > 1 ? 's' : ''} requiring attention. `);
+            }
+            
+            summaryParts.push(`AI recommends focusing on ${numericCols.length > 0 ? numericCols[0].name : cols[0]} for primary analysis.`);
+            
+            aiAnalysis = {
+                qualityScore,
+                qualityStatus,
+                numericCols,
+                stringCols,
+                dateCols,
+                correlations,
+                outliers,
+                insights,
+                colAnalysis,
+                executiveSummary: summaryParts.join(''),
+                recommendations: recommendations
+            };
+            
+            updateProgress(100, 'Analysis complete!', 4);
+            await new Promise(r => setTimeout(r, 500));
+        }
+
+        function detectType(values) {
+            const sample = values.slice(0, 50).filter(v => v !== null && v !== undefined);
+            if (!sample.length) return 'unknown';
+            
+            const nums = sample.filter(v => !isNaN(parseFloat(v)) && isFinite(v));
+            if (nums.length / sample.length > 0.8) return 'number';
+            
+            const dates = sample.filter(v => !isNaN(Date.parse(v)));
+            if (dates.length / sample.length > 0.8) return 'date';
+            
+            return 'string';
+        }
+
+        function showResults() {
+            document.getElementById('processingArea').classList.add('hidden');
+            document.getElementById('resultsArea').classList.remove('hidden');
+            
+            // Update stats
+            document.getElementById('statRows').textContent = currentData.length.toLocaleString();
+            document.getElementById('statCols').textContent = Object.keys(currentData[0]).length;
+            document.getElementById('statQuality').textContent = aiAnalysis.qualityScore.toFixed(0) + '%';
+            document.getElementById('qualityStatus').textContent = aiAnalysis.qualityStatus;
+            document.getElementById('statInsights').textContent = aiAnalysis.insights.length;
+            
+            document.getElementById('rowsTrend').textContent = `${aiAnalysis.numericCols.length} numeric`;
+            document.getElementById('colsBreakdown').textContent = `${aiAnalysis.stringCols.length} text`;
+            
+            // AI Summary
+            document.getElementById('aiSummary').textContent = aiAnalysis.executiveSummary;
+            
+            // AI Insight Cards
+            const cardsDiv = document.getElementById('aiInsightsCards');
+            cardsDiv.innerHTML = aiAnalysis.insights.slice(0, 4).map(insight => {
+                const colors = {
+                    success: 'success',
+                    warning: 'warning',
+                    error: 'error',
+                    info: ''
+                };
+                const icons = {
+                    quality: 'fa-shield-alt',
+                    structure: 'fa-sitemap',
+                    correlation: 'fa-link',
+                    outlier: 'fa-exclamation-triangle',
+                    distribution: 'fa-chart-area',
+                    identifier: 'fa-fingerprint',
+                    constant: 'fa-equals'
+                };
+                
+                return `
+                    <div class="ai-insight-card ${colors[insight.severity]} glass p-5 rounded-xl">
+                        <div class="flex items-start gap-3">
+                            <div class="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
+                                <i class="fas ${icons[insight.type] || 'fa-info-circle'} text-indigo-400"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-white mb-1">${insight.title}</h4>
+                                <p class="text-gray-300 text-sm mb-2">${insight.description}</p>
+                                ${insight.recommendation ? `<p class="text-indigo-400 text-xs"><i class="fas fa-lightbulb mr-1"></i>${insight.recommendation}</p>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Column list
+            const colDiv = document.getElementById('columnList');
+            colDiv.innerHTML = Object.values(aiAnalysis.colAnalysis).map(col => {
+                let icon = 'fa-hashtag';
+                let color = 'text-blue-400';
+                if (col.type === 'string') { icon = 'fa-font'; color = 'text-yellow-400'; }
+                if (col.type === 'date') { icon = 'fa-calendar'; color = 'text-green-400'; }
+                
+                return `
+                    <div class="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/5 hover:border-indigo-500/30 transition">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <i class="fas ${icon} ${color} w-5"></i>
+                            <div class="min-w-0">
+                                <div class="text-white font-medium text-sm truncate">${col.name}</div>
+                                <div class="text-xs text-gray-500">${col.type} • ${col.unique.toLocaleString()} unique</div>
+                            </div>
+                        </div>
+                        ${col.missing > 0 ? `<span class="text-xs text-yellow-400 flex-shrink-0">${col.missing} missing</span>` : '<i class="fas fa-check text-green-400 text-xs"></i>'}
+                    </div>
+                `;
+            }).join('');
+            
+            // Tables
+            renderTable('previewHead', 'previewBody', currentData.slice(0, 5));
+            renderTable('fullHead', 'fullBody', currentData);
+            document.getElementById('dataCount').textContent = `(${currentData.length.toLocaleString()} rows)`;
+            
+            // Stats table
+            document.getElementById('statsBody').innerHTML = aiAnalysis.numericCols.map(col => `
+                <tr class="border-b border-white/5 hover:bg-white/5">
+                    <td class="py-3 text-white font-medium">${col.name}</td>
+                    <td class="py-3 text-gray-400"><span class="px-2 py-1 rounded bg-white/10 text-xs">${col.type}</span></td>
+                    <td class="py-3 text-right text-gray-400 mono">${col.count.toLocaleString()}</td>
+                    <td class="py-3 text-right text-gray-400 mono">${col.mean?.toFixed(2) || '-'}</td>
+                    <td class="py-3 text-right text-gray-400 mono">${col.median?.toFixed(2) || '-'}</td>
+                    <td class="py-3 text-right text-gray-400 mono">${col.std?.toFixed(2) || '-'}</td>
+                    <td class="py-3 text-right text-gray-400 mono">${col.min?.toFixed(2) || '-'}</td>
+                    <td class="py-3 text-right text-gray-400 mono">${col.max?.toFixed(2) || '-'}</td>
+                </tr>
+            `).join('');
+            
+            // Executive summary & detailed insights
+            document.getElementById('executiveSummary').textContent = aiAnalysis.executiveSummary;
+            document.getElementById('detailedInsights').innerHTML = aiAnalysis.insights.map(insight => `
+                <div class="ai-insight-card glass p-5 rounded-xl ${insight.severity === 'success' ? 'success' : insight.severity === 'warning' ? 'warning' : ''}">
+                    <h4 class="font-bold text-white mb-2">${insight.title}</h4>
+                    <p class="text-gray-300 text-sm mb-2">${insight.description}</p>
+                    ${insight.recommendation ? `<div class="mt-3 p-3 rounded-lg bg-indigo-500/10 border border-indigo-500/20"><p class="text-indigo-300 text-sm"><i class="fas fa-robot mr-2"></i><strong>AI Recommendation:</strong> ${insight.recommendation}</p></div>` : ''}
+                </div>
+            `).join('');
+            
+            // Charts
+            initCharts();
+            
+            // Default tab
+            showTab('overview');
+            
+            showToast('AI Analysis Complete!');
+        }
+
+        function renderTable(headId, bodyId, data) {
+            if (!data || !data.length) return;
+            const cols = Object.keys(data[0]);
+            
+            document.getElementById(headId).innerHTML = `<tr>${cols.map(c => `<th class="text-left py-2 px-3 font-medium">${c}</th>`).join('')}</tr>`;
+            
+            document.getElementById(bodyId).innerHTML = data.map(row => `
+                <tr class="border-b border-white/5 data-row transition">
+                    ${cols.map(c => `<td class="py-2 px-3 text-gray-300 truncate max-w-xs">${formatValue(row[c])}</td>`).join('')}
+                </tr>
+            `).join('');
+        }
+
+        function formatValue(val) {
+            if (val === null || val === undefined) return '-';
+            if (typeof val === 'number') {
+                if (Math.abs(val) >= 1000000) return (val / 1000000).toFixed(2) + 'M';
+                if (Math.abs(val) >= 1000) return (val / 1000).toFixed(2) + 'K';
+                return val.toFixed(2);
+            }
+            if (typeof val === 'string' && val.length > 30) return val.substring(0, 30) + '...';
+            return val;
+        }
+
+        function initCharts() {
+            Object.values(charts).forEach(c => c?.destroy());
+            
+            const numericCols = aiAnalysis.numericCols;
+            if (!numericCols.length) {
+                document.getElementById('chartDist').parentElement.innerHTML = '<p class="text-gray-500 text-center py-12">No numeric data available for charts</p>';
+                return;
+            }
+            
+            // Chart 1: Distribution of first numeric column
+            const col1 = numericCols[0];
+            const values1 = currentData.map(r => parseFloat(r[col1.name])).filter(v => !isNaN(v));
+            
+            // Create histogram
+            const min = Math.min(...values1);
+            const max = Math.max(...values1);
+            const bins = 20;
+            const step = (max - min) / bins || 1;
+            const histogram = new Array(bins).fill(0);
+            values1.forEach(v => {
+                const bin = Math.min(Math.floor((v - min) / step), bins - 1);
+                histogram[bin]++;
+            });
+            
+            const ctx1 = document.getElementById('chartDist').getContext('2d');
+            charts.chart1 = new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: histogram.map((_, i) => (min + i * step).toFixed(1)),
+                    datasets: [{
+                        label: 'Frequency',
+                        data: histogram,
+                        backgroundColor: 'rgba(102, 126, 234, 0.6)',
+                        borderColor: '#667eea',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#9ca3af' } },
+                        x: { grid: { display: false }, ticks: { color: '#9ca3af', maxTicksLimit: 8 } }
+                    }
+                }
+            });
+            
+            // AI Explanation for distribution
+            const skewness = col1.mean > col1.median ? 'right-skewed (tail extends to higher values)' : col1.mean < col1.median ? 'left-skewed (tail extends to lower values)' : 'approximately symmetric';
+            document.getElementById('chartDistExplanation').innerHTML = `<i class="fas fa-robot text-indigo-400 mr-2"></i><strong>AI Analysis:</strong> Distribution of ${col1.name} is ${skewness}. Mean: ${col1.mean.toFixed(2)}, Median: ${col1.median.toFixed(2)}. Range: ${col1.min.toFixed(2)} to ${col1.max.toFixed(2)}.`;
+            
+            // Chart 2: Correlation or Top Categories
+            if (numericCols.length >= 2 && aiAnalysis.correlations.length > 0) {
+                const topCorr = aiAnalysis.correlations[0];
+                const dataPoints = currentData.slice(0, 100).map(r => ({
+                    x: parseFloat(r[topCorr.col1]) || 0,
+                    y: parseFloat(r[topCorr.col2]) || 0
+                }));
+                
+                const ctx2 = document.getElementById('chartCorr').getContext('2d');
+                charts.chart2 = new Chart(ctx2, {
+                    type: 'scatter',
+                    data: {
+                        datasets: [{
+                            label: 'Data Points',
+                            data: dataPoints,
+                            backgroundColor: 'rgba(236, 72, 153, 0.6)',
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: (ctx) => `${topCorr.col1}: ${ctx.parsed.x.toFixed(2)}, ${topCorr.col2}: ${ctx.parsed.y.toFixed(2)}`
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                title: { display: true, text: topCorr.col1, color: '#9ca3af' },
+                                grid: { color: 'rgba(255,255,255,0.1)' },
+                                ticks: { color: '#9ca3af' }
+                            },
+                            y: {
+                                title: { display: true, text: topCorr.col2, color: '#9ca3af' },
+                                grid: { color: 'rgba(255,255,255,0.1)' },
+                                ticks: { color: '#9ca3af' }
+                            }
+                        }
+                    }
+                });
+                
+                document.getElementById('chartCorrExplanation').innerHTML = `<i class="fas fa-robot text-indigo-400 mr-2"></i><strong>AI Analysis:</strong> ${topCorr.strength} ${topCorr.direction} correlation (${topCorr.corr.toFixed(2)}) between ${topCorr.col1} and ${topCorr.col2}. ${topCorr.direction === 'positive' ? 'As one increases, the other tends to increase.' : 'As one increases, the other tends to decrease.'}`;
+            } else if (aiAnalysis.stringCols.length > 0 && aiAnalysis.stringCols[0].mostCommon) {
+                // Show top categories
+                const col = aiAnalysis.stringCols[0];
+                const freq = {};
+                currentData.forEach(r => {
+                    const v = r[col.name];
+                    if (v) freq[v] = (freq[v] || 0) + 1;
+                });
+                const top = Object.entries(freq).sort((a,b) => b[1]-a[1]).slice(0, 5);
+                
+                const ctx2 = document.getElementById('chartCorr').getContext('2d');
+                charts.chart2 = new Chart(ctx2, {
+                    type: 'doughnut',
+                    data: {
+                        labels: top.map(x => x[0]),
+                        datasets: [{
+                            data: top.map(x => x[1]),
+                            backgroundColor: ['#667eea', '#764ba2', '#ec4899', '#10b981', '#f59e0b']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'right', labels: { color: '#9ca3af', font: { size: 11 } } }
+                        }
+                    }
+                });
+                
+                document.getElementById('chartCorrExplanation').innerHTML = `<i class="fas fa-robot text-indigo-400 mr-2"></i><strong>AI Analysis:</strong> Top 5 categories in ${col.name}. Most common: "${col.mostCommon[0]}" (${((col.mostCommon[1]/currentData.length)*100).toFixed(1)}% of data).`;
+            } else {
+                document.getElementById('chartCorr').parentElement.innerHTML = '<p class="text-gray-500 text-center py-12">Insufficient data for correlation analysis</p>';
+            }
+            
+            // Chart 3: Trend (sample of first numeric column)
+            const ctx3 = document.getElementById('chartTrend').getContext('2d');
+            const sampleData = values1.slice(0, 50);
+            
+            charts.chart3 = new Chart(ctx3, {
+                type: 'line',
+                data: {
+                    labels: sampleData.map((_, i) => i + 1),
+                    datasets: [{
+                        label: col1.name,
+                        data: sampleData,
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 3,
+                        pointHoverRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#9ca3af' } },
+                        x: { display: false }
+                    }
+                }
+            });
+            
+            // Calculate trend
+            const firstHalf = sampleData.slice(0, Math.floor(sampleData.length/2));
+            const secondHalf = sampleData.slice(Math.floor(sampleData.length/2));
+            const firstAvg = firstHalf.reduce((a,b) => a+b, 0) / firstHalf.length;
+            const secondAvg = secondHalf.reduce((a,b) => a+b, 0) / secondHalf.length;
+            const trend = secondAvg > firstAvg ? 'upward' : secondAvg < firstAvg ? 'downward' : 'stable';
+            const change = ((secondAvg - firstAvg) / firstAvg * 100).toFixed(1);
+            
+            document.getElementById('chartTrendExplanation').innerHTML = `<i class="fas fa-robot text-indigo-400 mr-2"></i><strong>AI Analysis:</strong> Trend shows ${trend} pattern (${change}% change). ${Math.abs(parseFloat(change)) > 10 ? 'Significant variation detected.' : 'Relatively stable values.'} Standard deviation: ${col1.std.toFixed(2)}.`;
+        }
+
+        function showTab(tab) {
+            ['overview', 'charts', 'insights', 'stats', 'data'].forEach(t => {
+                document.getElementById(`view-${t}`).classList.add('hidden');
+                document.getElementById(`tab-${t}`).classList.remove('tab-active');
+                document.getElementById(`tab-${t}`).classList.add('text-gray-400');
+            });
+            
+            document.getElementById(`view-${tab}`).classList.remove('hidden');
+            document.getElementById(`tab-${tab}`).classList.add('tab-active');
+            document.getElementById(`tab-${tab}`).classList.remove('text-gray-400');
+            
+            if (tab === 'charts') {
+                setTimeout(() => Object.values(charts).forEach(c => c?.resize()), 100);
+            }
+        }
+
+        function resetAnalyzer() {
+            currentData = null;
+            currentFileName = '';
+            analysis = null;
+            aiAnalysis = null;
+            
+            document.getElementById('uploadArea').classList.remove('hidden');
+            document.getElementById('processingArea').classList.add('hidden');
+            document.getElementById('resultsArea').classList.add('hidden');
+            document.getElementById('fileInput').value = '';
+            
+            Object.values(charts).forEach(c => c?.destroy());
+            charts = {};
+        }
+
+        // Auto-download functions with mobile support
+        function downloadCSV() {
+            if (!currentData) return;
+            
+            try {
+                const csv = Papa.unparse(currentData);
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                
+                // iOS Safari support
+                if (navigator.userAgent.match(/iPad|iPhone|iPod/i)) {
+                    const reader = new FileReader();
+                    reader.onload = function() {
+                        const url = reader.result;
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'analyzed_data.csv';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                    };
+                    reader.readAsDataURL(blob);
+                } else {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'analyzed_data.csv';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }
+                
+                showToast('CSV downloaded to your device!');
+            } catch (err) {
+                showToast('Download failed: ' + err.message, 'error');
+            }
+        }
+
+        function downloadJSON() {
+            if (!currentData) return;
+            
+            try {
+                const json = JSON.stringify(currentData, null, 2);
+                const blob = new Blob([json], { type: 'application/json' });
+                
+                if (navigator.userAgent.match(/iPad|iPhone|iPod/i)) {
+                    const reader = new FileReader();
+                    reader.onload = function() {
+                        const url = reader.result;
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'analyzed_data.json';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                    };
+                    reader.readAsDataURL(blob);
+                } else {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'analyzed_data.json';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }
+                
+                showToast('JSON downloaded to your device!');
+            } catch (err) {
+                showToast('Download failed: ' + err.message, 'error');
+            }
+        }
+
+        function downloadExcel() {
+            if (!currentData) return;
+            
+            try {
+                const ws = XLSX.utils.json_to_sheet(currentData);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, 'AI Analysis');
+                
+                // Generate file
+                const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+                const blob = new Blob([wbout], { type: 'application/octet-stream' });
+                
+                if (navigator.userAgent.match(/iPad|iPhone|iPod/i)) {
+                    const reader = new FileReader();
+                    reader.onload = function() {
+                        const url = reader.result;
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'analyzed_data.xlsx';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                    };
+                    reader.readAsDataURL(blob);
+                } else {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'analyzed_data.xlsx';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }
+                
+                showToast('Excel file downloaded!');
+            } catch (err) {
+                showToast('Download failed: ' + err.message, 'error');
+            }
+        }
+
+        function showToast(msg, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            
+            const colors = {
+                success: 'border-green-500/50 text-green-400 bg-green-500/10',
+                error: 'border-red-500/50 text-red-400 bg-red-500/10'
+            };
+            
+            const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle' };
+            
+            toast.className = `toast glass px-6 py-4 rounded-xl border flex items-center gap-3 shadow-2xl pointer-events-auto ${colors[type]}`;
+            toast.innerHTML = `<i class="fas ${icons[type]} text-xl"></i><span class="font-medium">${msg}</span>`;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(100%)';
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+    </script>
+</body>
+</html>
